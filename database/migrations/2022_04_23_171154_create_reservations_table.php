@@ -24,7 +24,7 @@ class CreateReservationsTable extends Migration
             $table->timestamps();
         });
     }
-//nik mok
+
     /**
      * Reverse the migrations.
      *
