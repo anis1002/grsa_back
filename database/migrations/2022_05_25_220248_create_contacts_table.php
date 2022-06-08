@@ -16,7 +16,6 @@ class CreateContactsTable extends Migration
         Schema::create('contacts', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->string('email_sender');
-            $table->foreign('email_sender')->references('email')->on('teachers')->onDelete('cascade');
             $table->string('email_receive');
             $table->foreign('email_receive')->references('email')->on('teachers')->onDelete('cascade');
             $table->Text('message');

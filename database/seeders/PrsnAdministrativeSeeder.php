@@ -20,7 +20,8 @@ class PrsnAdministrativeSeeder extends Seeder
             'name' => 'AdministrativePerson',
             'email' => 'AdministrativePerson@gmail.com',
             'role' => 'AdministrativePerson',
-            'password' => Hash::make('12345678')
+            'password' => Hash::make('12345678'),
+            'status' => 'active'
         ]);
 
         Prsnadministrative::create([

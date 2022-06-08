@@ -113,3 +113,10 @@ Route::get('/allteacher', [TeacherController::class, 'allteacher']); //for show 
 Route::post('/searchteacher', [TeacherController::class, 'searchteacher']); //for show admin profile info
 Route::post('/sendmessage', [TeacherController::class, 'sendmessage']); //for show admin profile info
 Route::post('/showmyrecievemessage', [TeacherController::class, 'showmyrecievemessage']); //for show admin profile info
+
+
+//---------------------------------------------------------------------------------------------------------------
+//this route for request reservation
+//---------------------------------------------------------------------------------------------------------------
+Route::get('/AllRequest', [AdministratorController::class, 'AllRequest']);
+Route::post('/DeletRequest', [AdministratorController::class, 'DeletRequest']);

@@ -3,12 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\Administrator;
+use App\Models\Contact;
 use App\Models\Material;
 use App\Models\Prsnadministrative;
 use App\Models\Reservation;
 use App\Models\Room;
 use App\Models\Teacher;
 use App\Models\User;
+use App\Models\Waiting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -452,8 +454,29 @@ class AdministratorController extends Controller
         return $room;
     }
 
+    public function AllRequest()
+    {
+        $request = Waiting::select('*')->get();
+        return $request;
+    }
+    
+    public function DeletRequest(Request $request)
+    {
+        $room = DB::table('rooms')
+        ->select('roomname')
+        ->where('id', $request->roomid)
+        ->first();
+        Contact::create([
+            'email_sender' => 'admin',
+            'email_receive' => $request->emailRe,
+            'message' => 'your request has been refused for  '.$room->roomname,
+        ]);
+        $Request = DB::table('waitings')->where('id', $request->id)->delete();
+        return response()->json('request succefully deleted');
+    }
 
-   
+
+
 
 
 

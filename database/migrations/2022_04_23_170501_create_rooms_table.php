@@ -18,6 +18,7 @@ class CreateRoomsTable extends Migration
             $table->string('roomname');
             $table->integer('capacity')->nullable();
             $table->integer('floor')->nullable();
+            $table->set('type', ['n', 's']);
             $table->timestamps();
         });
     }

@@ -10,6 +10,7 @@ use App\Models\Timing;
 use App\Models\Room;
 use App\Models\User;
 use App\Models\Teacher;
+use App\Models\Waiting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -44,7 +45,6 @@ class TeacherController extends Controller
 
     public function availablerooms(Request $request)
     {
-        
         $timing_id = Timing::find($request->hour);
         $start = $timing_id->starttime;
         $end =  $timing_id->endtime;
@@ -111,13 +111,23 @@ class TeacherController extends Controller
 
     public function addreservation(Request $request)
     {
-        Reservation::create([
-            'teacher_email' => $request->email,
-            'reservationdate' => $request->date,
-            'roomtiming' => $request->hour,
-            'room_id' => $request->room_id,
-        ]);
-        return response()->json('succefully added');
+        if ($request->type == 'n') {
+            Reservation::create([
+                'teacher_email' => $request->email,
+                'reservationdate' => $request->date,
+                'roomtiming' => $request->hour,
+                'room_id' => $request->room_id,
+            ]);
+            return response()->json('succefully added');
+        } else {
+            Waiting::create([
+                'teacher_email' => $request->email,
+                'reservationdate' => $request->date,
+                'roomtiming' => $request->hour,
+                'room_id' => $request->room_id,
+            ]);
+            return response()->json('wait for acceptance');
+        }
     }
 
 
