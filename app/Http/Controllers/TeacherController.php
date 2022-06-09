@@ -320,6 +320,7 @@ class TeacherController extends Controller
         ->where('email_receive', $request->emailSend)
         // ->orderBy('created_at')
         ->latest()
+        
         ->get();
         return response()->json($mymessage);
     }

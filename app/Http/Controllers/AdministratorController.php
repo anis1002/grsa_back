@@ -458,7 +458,7 @@ class AdministratorController extends Controller
     {
         //$request = Waiting::select('*')->get();
         $request = DB::table('waitings')
-        ->select('waitings.id','waitings.reservationdate', 'waitings.teacher_email','timings.starttime', 'timings.endtime', 'rooms.roomname')
+        ->select('waitings.id','waitings.room_id','waitings.reservationdate', 'waitings.teacher_email','timings.starttime', 'timings.endtime', 'rooms.roomname')
         ->join('rooms', 'rooms.id', "=", "room_id")
         ->join("timings", 'waitings.roomtiming', '=', 'timings.roomtiming')
         ->get();
@@ -469,7 +469,7 @@ class AdministratorController extends Controller
     {
         $room = DB::table('rooms')
         ->select('roomname')
-        ->where('id', $request->roomid)
+        ->where('id', $request->room_id)
         ->first();
         Contact::create([
             'email_sender' => 'admin',
@@ -484,7 +484,7 @@ class AdministratorController extends Controller
     {
         $room = DB::table('rooms')
         ->select('roomname')
-        ->where('id', $request->roomid)
+        ->where('id', $request->room_id)
         ->first();
 
         Contact::create([
