@@ -65,6 +65,7 @@ class TeacherController extends Controller
         ->where('reservationdate', $request->date)
         ->where('teacher_email', $request->email)
         ->get();
+        //jd
         //$roomtype = $reservationtrash;
         return $reservationtrash;
     }
