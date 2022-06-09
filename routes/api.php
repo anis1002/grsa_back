@@ -120,3 +120,5 @@ Route::post('/showmyrecievemessage', [TeacherController::class, 'showmyrecieveme
 //---------------------------------------------------------------------------------------------------------------
 Route::get('/AllRequest', [AdministratorController::class, 'AllRequest']);
 Route::post('/DeletRequest', [AdministratorController::class, 'DeletRequest']);
+Route::post('/AcceptRequest', [AdministratorController::class, 'AcceptRequest']);
+Route::post('/Deletmessage', [AdministratorController::class, 'Deletmessage']);

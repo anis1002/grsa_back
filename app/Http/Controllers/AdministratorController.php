@@ -456,7 +456,12 @@ class AdministratorController extends Controller
 
     public function AllRequest()
     {
-        $request = Waiting::select('*')->get();
+        //$request = Waiting::select('*')->get();
+        $request = DB::table('waitings')
+        ->select('waitings.id','waitings.reservationdate', 'waitings.teacher_email','timings.starttime', 'timings.endtime', 'rooms.roomname')
+        ->join('rooms', 'rooms.id', "=", "room_id")
+        ->join("timings", 'waitings.roomtiming', '=', 'timings.roomtiming')
+        ->get();
         return $request;
     }
     
@@ -473,6 +478,54 @@ class AdministratorController extends Controller
         ]);
         $Request = DB::table('waitings')->where('id', $request->id)->delete();
         return response()->json('request succefully deleted');
+    }
+
+    public function AcceptRequest(Request $request)
+    {
+        $room = DB::table('rooms')
+        ->select('roomname')
+        ->where('id', $request->roomid)
+        ->first();
+
+        Contact::create([
+            'email_sender' => 'admin',
+            'email_receive' => $request->emailRe,
+            'message' => 'your request has been accepted for  '.$room->roomname,
+        ]);
+
+        $reservation = Waiting::find($request->id)->first();
+        Reservation::create([
+            'teacher_email' => $reservation->teacher_email,
+            'reservationdate' => $reservation->reservationdate,
+            'roomtiming' => $reservation->roomtiming,
+            'room_id' => $reservation->room_id,
+        ]);
+        $foreach = DB::table('waitings')
+        ->where('reservationdate', $reservation->reservationdate)
+        ->where('roomtiming', $reservation->roomtiming)
+        ->where('room_id', $reservation->room_id)
+        ->get();
+        $Request = DB::table('waitings')
+        ->where('reservationdate', $reservation->reservationdate)
+        ->where('roomtiming', $reservation->roomtiming)
+        ->where('room_id', $reservation->room_id)
+        ->delete();
+
+        foreach ($foreach as $reserv ) {
+            Contact::create([
+                'email_sender' => 'admin',
+                'email_receive' => $reserv->teacher_email,
+                'message' => 'your request has been refuser for  '.$room->roomname,
+            ]);
+
+        }
+        return response()->json('request succefully accepted');
+    }
+
+    public function Deletmessage(Request $request)
+    {
+        $message = DB::table('contacts')->where('id', $request->id)->delete();
+        return response()->json('message succefully deleted');
     }
 
 
