@@ -59,15 +59,14 @@ class TeacherController extends Controller
     {
 
         $reservationtrash = DB::table('reservations')
-        ->select('reservations.id','reservations.reservationdate', 'reservations.teacher_email', 'materials.typematerial', 'materials.state', 'timings.starttime', 'timings.endtime', 'rooms.roomname')
+        ->select('reservations.id','reservations.reservationdate', 'reservations.teacher_email', 'timings.starttime', 'timings.endtime', 'rooms.roomname')
         ->join('rooms', 'rooms.id', "=", "room_id")
-        ->leftJoin('materials', 'material_id', '=', 'materials.id')
         ->join("timings", 'reservations.roomtiming', '=', 'timings.roomtiming')
         ->where('reservationdate', $request->date)
         ->where('teacher_email', $request->email)
         ->get();
         //$roomtype = $reservationtrash;
-        return response()->json($reservationtrash);
+        return $reservationtrash;
     }
 
 
