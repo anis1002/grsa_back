@@ -504,6 +504,7 @@ class AdministratorController extends Controller
         ->where('reservationdate', $reservation->reservationdate)
         ->where('roomtiming', $reservation->roomtiming)
         ->where('room_id', $reservation->room_id)
+        ->whereNotIn('teacher_email', $reservation)
         ->get();
         $Request = DB::table('waitings')
         ->where('reservationdate', $reservation->reservationdate)
