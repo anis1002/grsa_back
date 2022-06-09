@@ -133,12 +133,23 @@ class TeacherController extends Controller
     public function updatereservation(Request $request)
     {
         $reservation = Reservation::where('id', $request->id)->first();
-        $reservation->update([
-            'reservationdate' => $request->date,
-            'roomtiming' => $request->hour,
-            'room_id' => $request->room_id,
-        ]);
-        return response()->json('succefully updated');
+        if ($request->type == 'n') {
+            $reservation->update([
+                'teacher_email' => $request->email,
+                'reservationdate' => $request->date,
+                'roomtiming' => $request->hour,
+                'room_id' => $request->room_id,
+            ]);
+            return response()->json('succefully updated');
+        } else {
+            Waiting::create([
+                'teacher_email' => $request->email,
+                'reservationdate' => $request->date,
+                'roomtiming' => $request->hour,
+                'room_id' => $request->room_id,
+            ]);
+            return response()->json('wait for acceptance');
+        }
     }
 
     public function deletereservation(Request $request)
