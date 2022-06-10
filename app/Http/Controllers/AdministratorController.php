@@ -83,9 +83,10 @@ class AdministratorController extends Controller
                 'password' => 'required|min:8'
             ]
         );
+        $email = Teacher::whereEmail($request->email)->first();
         if ($validator->fails()) {
             return response()->json('ERROR');
-        } else {
+        } elseif (empty($email)) {
             //add teacher in Teachers table
             $teacher = new Teacher();
             $teacher->firstname = $request->input('firstName');
@@ -110,8 +111,12 @@ class AdministratorController extends Controller
             $user->status = $request->input('status');
             $user->save();
             return response()->json('added succesfully');
+        } else {
+            return response()->json('this email used before');
         }
+
     }
+
 
     public function editteacher(Request $request)
     {
@@ -130,12 +135,12 @@ class AdministratorController extends Controller
             ]
         );
         if ($validator->fails()) {
-            return response()->json('missing input');
-        } else {
+            return response()->json('Error : missing input or Phone Number must be a Number');
+        } elseif (strlen($request->password) == 0 || strlen($request->password) >= 8) {
             //$teacher = Teacher::where('email' , $email)->first();
             $teacher = Teacher::whereEmail($request->email)->first();
             $user = User::where('email', $request->email)->first();
-            if ($request->Password == '') {
+            if ($request->password == '') {
 
                 $teacher->update([
                     'firstname' => $request->firstName,
@@ -165,16 +170,18 @@ class AdministratorController extends Controller
                     'status' => $request->status,
                     'state' => $request->state,
                     //$password = $request->password,
-                    'password' => Hash::make($request->Password),
+                    'password' => Hash::make($request->password),
                 ]);
                 $user->update([
                     'name' => $request->firstName,
                     'status' => $request->status,
                     //$password = $request->password,
-                    'password' => Hash::make($request->Password),
+                    'password' => Hash::make($request->password),
                 ]);
                 return response()->json('updated succesfully');
             }
+        } else {
+            return response()->json('Error : Password short than 8 caracters');
         }
     }
 
@@ -217,12 +224,12 @@ class AdministratorController extends Controller
             ]
         );
         if ($validator->fails()) {
-            return response()->json('missing input');
-        } else {
+            return response()->json('Error : missing input');
+        } elseif (strlen($request->password) == 0 || strlen($request->password) >= 8) {
             //$teacher = Teacher::where('email' , $email)->first();
             $admin = Administrator::whereEmail($request->email)->first();
             $user = User::where('email', $request->email)->first();
-            if ($request->Password == '') {
+            if ($request->password == '') {
 
                 $admin->update([
                     'firstname' => $request->firstName,
@@ -235,21 +242,23 @@ class AdministratorController extends Controller
                     //$password => $request->password,
                     //'password' => Hash::make($request->password),
                 ]);
-                return response()->json('updated succesfully');
+                return response()->json('updated succesfully emty');
             } else {
                 $admin->update([
                     'firstname' => $request->firstName,
                     'lastname' => $request->lastName,
                     //$password = $request->password,
-                    'password' => Hash::make($request->Password),
+                    'password' => Hash::make($request->password),
                 ]);
                 $user->update([
                     'name' => $request->firstName,
                     //$password = $request->password,
-                    'password' => Hash::make($request->Password),
+                    'password' => Hash::make($request->password),
                 ]);
                 return response()->json('updated succesfully');
             }
+        }else{
+            return response()->json('Error : Password short than 8 caracters');
         }
     }
     
@@ -309,6 +318,7 @@ class AdministratorController extends Controller
                 'roomType' => 'required',
                 'capacity' => 'required|numeric',
                 'floor' => 'required|numeric',
+                'type' => 'required',
             ]
         );
         if ($validator->fails()) {
@@ -318,6 +328,7 @@ class AdministratorController extends Controller
                 'roomname' => $request->roomType,
                 'capacity' => $request->capacity,
                 'floor' => $request->floor,
+                'type' => $request->type,
             ]);
             return response()->json('succefully added');
 
@@ -338,6 +349,7 @@ class AdministratorController extends Controller
                 'roomType' => 'required',
                 'capacity' => 'required|numeric',
                 'floor' => 'required|numeric',
+                'type' => 'required',
             ]
         );
         if ($validator->fails()) {
@@ -349,6 +361,7 @@ class AdministratorController extends Controller
             'roomname' => $request->roomType,
             'capacity' => $request->capacity,
             'floor' => $request->floor,
+            'type' => $request->type,
         ]);
         return response()->json('Room updated succesfully');
     }
@@ -458,7 +471,7 @@ class AdministratorController extends Controller
     {
         //$request = Waiting::select('*')->get();
         $request = DB::table('waitings')
-        ->select('waitings.id','waitings.room_id','waitings.reservationdate', 'waitings.teacher_email','timings.starttime', 'timings.endtime', 'rooms.roomname')
+        ->select('waitings.id', 'waitings.room_id', 'waitings.reservationdate', 'waitings.teacher_email','timings.starttime', 'timings.endtime', 'rooms.roomname')
         ->join('rooms', 'rooms.id', "=", "room_id")
         ->join("timings", 'waitings.roomtiming', '=', 'timings.roomtiming')
         ->get();
@@ -471,10 +484,15 @@ class AdministratorController extends Controller
         ->select('roomname')
         ->where('id', $request->room_id)
         ->first();
+        $wait = DB::table('waitings')
+        ->select('waitings.reservationdate', 'timings.starttime', 'timings.endtime')
+        ->where('id', $request->id)
+        ->join("timings", 'waitings.roomtiming', '=', 'timings.roomtiming')
+        ->first();
         Contact::create([
             'email_sender' => 'admin',
             'email_receive' => $request->emailRe,
-            'message' => 'your request has been refused for  '.$room->roomname,
+            'message' => 'your request has been refused for '.$room->roomname.' at '. $wait-> reservationdate . ' In ' . $wait-> starttime . ' - ' . $wait->endtime
         ]);
         $Request = DB::table('waitings')->where('id', $request->id)->delete();
         return response()->json('request succefully deleted');
@@ -486,11 +504,15 @@ class AdministratorController extends Controller
         ->select('roomname')
         ->where('id', $request->room_id)
         ->first();
-
+        $wait = DB::table('waitings')
+        ->select('waitings.reservationdate', 'timings.starttime', 'timings.endtime')
+        ->where('id', $request->id)
+        ->join("timings", 'waitings.roomtiming', '=', 'timings.roomtiming')
+        ->first();
         Contact::create([
             'email_sender' => 'admin',
             'email_receive' => $request->emailRe,
-            'message' => 'your request has been accepted for  '.$room->roomname,
+            'message' => 'your request has been accepted for  ' . $room->roomname . ' at ' . $wait->reservationdate . ' In ' . $wait->starttime . '-' . $wait->endtime
         ]);
 
         $reservation = Waiting::find($request->id)->first();
@@ -516,11 +538,11 @@ class AdministratorController extends Controller
             Contact::create([
                 'email_sender' => 'admin',
                 'email_receive' => $reserv->teacher_email,
-                'message' => 'your request has been refuser for  '.$room->roomname,
+                'message' => 'your request has been refused for  ' . $room->roomname . ' at ' . $wait->reservationdate . ' from ' . $wait->starttime . ' to ' . $wait->endtime
             ]);
 
         }
-        return response()->json('request succefully accepted');
+        return response()->json("request succefully accepted");
     }
 
     public function Deletmessage(Request $request)

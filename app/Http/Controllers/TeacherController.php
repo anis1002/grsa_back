@@ -182,12 +182,12 @@ class TeacherController extends Controller
                 'firstName' => 'required',
                 'lastName' => 'required',
                 'phoneNumber' => 'required|numeric',
-                //'password' => 'min:8'
+                'password' => 'min:8'
             ]
         );
         if ($validator->fails()) {
-            return response()->json('missing input');
-        } else {
+            return response()->json('Error : missing input or Phone Number must be a Number');
+        } elseif (strlen($request->password) == 0 || strlen($request->password) >= 8) {
             //$teacher = Teacher::where('email' , $email)->first();
             $teacher = Teacher::whereEmail($request->email)->first();
             $user = User::where('email', $request->email)->first();
@@ -221,6 +221,8 @@ class TeacherController extends Controller
                 ]);
                 return response()->json('updated succesfully');
             }
+        } else {
+            return response()->json('Error : Password short than 8 caracters');
         }
     }
     //---------------------------------------------------------------------------------------------------------------
@@ -316,7 +318,7 @@ class TeacherController extends Controller
     public function showmyrecievemessage(Request $request)
     {
         $mymessage = DB::table('contacts')
-        ->select('email_sender','message','created_at')
+        ->select('*')
         ->where('email_receive', $request->emailSend)
         // ->orderBy('created_at')
         ->latest()

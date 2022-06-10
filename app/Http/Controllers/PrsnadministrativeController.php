@@ -44,16 +44,16 @@ class PrsnadministrativeController extends Controller
             [
                 'firstName' => 'required',
                 'lastName' => 'required',
-                //'password' => 'min:8'
+                'password' => 'min:8'
             ]
         );
         if ($validator->fails()) {
-            return response()->json('missing input');
-        } else {
+            return response()->json('Error :missing input or Phone Number must be a Number');
+        } elseif (strlen($request->password) == 0 || strlen($request->password) >= 8) {
             //$teacher = Teacher::where('email' , $email)->first();
             $prsnadministrative = Prsnadministrative::whereEmail($request->email)->first();
             $user = User::where('email', $request->email)->first();
-            if ($request->Password == '') {
+            if ($request->password == '') {
 
                 $prsnadministrative->update([
                     'firstname' => $request->firstName,
@@ -72,15 +72,17 @@ class PrsnadministrativeController extends Controller
                     'firstname' => $request->firstName,
                     'lastname' => $request->lastName,
                     //$password = $request->password,
-                    'password' => Hash::make($request->Password),
+                    'password' => Hash::make($request->password),
                 ]);
                 $user->update([
                     'name' => $request->firstName,
                     //$password = $request->password,
-                    'password' => Hash::make($request->Password),
+                    'password' => Hash::make($request->password),
                 ]);
                 return response()->json('updated succesfully');
             }
+        }else{
+            return response()->json('Error : Password short than 8 caracters');
         }
     }
 }
