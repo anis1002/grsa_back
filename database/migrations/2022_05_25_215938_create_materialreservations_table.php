@@ -17,6 +17,7 @@ class CreateMaterialreservationsTable extends Migration
                 $table->bigIncrements('id');
                 $table->date('reservationdate');
                 $table->unsignedBigInteger('material_id')->nullable();
+                $table->foreign('material_id')->references('id')->on('materials')->onDelete('cascade');
                 $table->string('teacher_email');
                 $table->foreign('teacher_email')->references('email')->on('teachers')->onDelete('cascade');
                 $table->integer('timing');

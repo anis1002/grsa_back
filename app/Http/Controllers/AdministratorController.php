@@ -11,6 +11,7 @@ use App\Models\Room;
 use App\Models\Teacher;
 use App\Models\User;
 use App\Models\Waiting;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -370,6 +371,29 @@ class AdministratorController extends Controller
     //---------------------------------------------------------------------------------------------------------------
     public function deleteroom(Request $request)
     {
+        $date = Carbon::now()->format('Y-m-d');
+        $message = DB::table('reservations')
+        ->join('rooms', 'rooms.id', "=", "room_id")
+        ->where('room_id', $request->id)
+        ->where('reservationdate', '>=', $date)
+        ->get();
+        $messages = DB::table('waitings')
+        ->join('rooms', 'rooms.id', "=", "room_id")
+        ->where('room_id', $request->id)
+        ->where('reservationdate', '>=', $date)
+        ->get();
+        foreach ($message as $msg ) {
+            Contact::create([
+                'email_sender' => 'admin',
+                'email_receive' => $msg->teacher_email,
+                'message' => 'the room '.$msg->roomname.' is deleted you booked this room please chenge it ',
+            ]);}
+        foreach ($messages as $msg ) {
+            Contact::create([
+                'email_sender' => 'admin',
+                'email_receive' => $msg->teacher_email,
+                'message' => 'the room '.$msg->roomname.' is deleted you booked this room please chenge it ',
+            ]);}
         $room = DB::table('rooms')->where('id', $request->id)->delete();
         return response()->json('Room deleted succesfully');
     }
@@ -437,6 +461,20 @@ class AdministratorController extends Controller
     //---------------------------------------------------------------------------------------------------------------
     public function deletematerials(Request $request)
     {
+        $date = Carbon::now()->format('Y-m-d');
+        $message = DB::table('materialreservations')
+        ->join('materials', 'materials.id', "=", "material_id")
+        ->where('material_id', $request->id)
+        ->where('reservationdate', '>=', $date)
+        ->get()
+        ;
+        foreach ($message as $msg ) {
+            Contact::create([
+                'email_sender' => 'admin',
+                'email_receive' => $msg->teacher_email,
+                'message' => 'the material '.$msg->typematerial.' is deleted you booked this material please chenge it ',
+            ]);
+        }
         $material = DB::table('materials')->where('id', $request->id)->delete();
         return response()->json('Material succefully deleted');
     }
@@ -487,15 +525,22 @@ class AdministratorController extends Controller
         ->select('roomname')
         ->where('id', $request->room_id)
         ->first();
+        $room = strtoupper($room->roomname);
         $wait = DB::table('waitings')
         ->select('waitings.reservationdate', 'timings.starttime', 'timings.endtime')
         ->where('id', $request->id)
         ->join("timings", 'waitings.roomtiming', '=', 'timings.roomtiming')
         ->first();
+        $reservationdate = $wait->reservationdate;
+        $reservationdate = date("d-m-Y", strtotime($reservationdate));
+        $starttime = $wait->starttime;
+        $starttime = str_replace(':00:00','H',$starttime);
+        $endtime = $wait->endtime;
+        $endtime = str_replace(':00:00','H',$endtime);
         Contact::create([
             'email_sender' => 'admin',
             'email_receive' => $request->emailRe,
-            'message' => 'your request has been refused for '.$room->roomname.' at '. $wait-> reservationdate . ' In ' . $wait-> starttime . ' - ' . $wait->endtime
+            'message' => 'your request has been refused for '.$room.' In '. $reservationdate . ' At ' . $starttime . ' - ' . $endtime
         ]);
         $Request = DB::table('waitings')->where('id', $request->id)->delete();
         return response()->json('request succefully deleted');
@@ -507,15 +552,22 @@ class AdministratorController extends Controller
         ->select('roomname')
         ->where('id', $request->room_id)
         ->first();
+        $room = strtoupper($room->roomname);
         $wait = DB::table('waitings')
         ->select('waitings.reservationdate', 'timings.starttime', 'timings.endtime')
         ->where('id', $request->id)
         ->join("timings", 'waitings.roomtiming', '=', 'timings.roomtiming')
         ->first();
+        $reservationdate = $wait->reservationdate;
+        $reservationdate = date("d-m-Y", strtotime($reservationdate));
+        $starttime = $wait->starttime;
+        $starttime = str_replace(':00:00','H',$starttime);
+        $endtime = $wait->endtime;
+        $endtime = str_replace(':00:00','H',$endtime);
         Contact::create([
             'email_sender' => 'admin',
             'email_receive' => $request->emailRe,
-            'message' => 'your request has been accepted for  ' . $room->roomname . ' at ' . $wait->reservationdate . ' In ' . $wait->starttime . '-' . $wait->endtime
+            'message' => 'your request has been accepted for  ' . $room . ' In ' . $reservationdate . ' At ' . $starttime . '-' . $endtime
         ]);
 
         $reservation = Waiting::find($request->id)->first();
@@ -541,7 +593,7 @@ class AdministratorController extends Controller
             Contact::create([
                 'email_sender' => 'admin',
                 'email_receive' => $reserv->teacher_email,
-                'message' => 'your request has been refused for  ' . $room->roomname . ' at ' . $wait->reservationdate . ' from ' . $wait->starttime . ' to ' . $wait->endtime
+                'message' => 'your request has been refused for  ' . $room . ' at ' . $reservationdate . ' from ' . $starttime . ' to ' . $endtime
             ]);
 
         }
