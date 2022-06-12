@@ -383,16 +383,18 @@ class AdministratorController extends Controller
         ->where('reservationdate', '>=', $date)
         ->get();
         foreach ($message as $msg ) {
+            $room = strtoupper($msg->roomname);
             Contact::create([
                 'email_sender' => 'admin',
                 'email_receive' => $msg->teacher_email,
-                'message' => 'the room '.$msg->roomname.' is deleted you booked this room please chenge it ',
+                'message' => 'the room '.$room.' is deleted you booked this room please chenge it ',
             ]);}
         foreach ($messages as $msg ) {
+            $room = strtoupper($msg->roomname);
             Contact::create([
                 'email_sender' => 'admin',
                 'email_receive' => $msg->teacher_email,
-                'message' => 'the room '.$msg->roomname.' is deleted you booked this room please chenge it ',
+                'message' => 'the room '.$room.' is deleted you booked this room please chenge it ',
             ]);}
         $room = DB::table('rooms')->where('id', $request->id)->delete();
         return response()->json('Room deleted succesfully');
@@ -469,10 +471,11 @@ class AdministratorController extends Controller
         ->get()
         ;
         foreach ($message as $msg ) {
+            $material = strtoupper($msg->typematerial);
             Contact::create([
                 'email_sender' => 'admin',
                 'email_receive' => $msg->teacher_email,
-                'message' => 'the material '.$msg->typematerial.' is deleted you booked this material please chenge it ',
+                'message' => 'the material '.$material.' is deleted you booked this material please chenge it ',
             ]);
         }
         $material = DB::table('materials')->where('id', $request->id)->delete();
