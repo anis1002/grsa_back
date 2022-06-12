@@ -13,7 +13,7 @@ class Room extends Model
 
     protected $primaryKey = 'id';
 
-    protected $fillable = ['capacity','floor','roomname'];
+    protected $fillable = ['capacity','floor','roomname','type'];
 
     public function reservation()
     {

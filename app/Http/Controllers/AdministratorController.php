@@ -243,7 +243,7 @@ class AdministratorController extends Controller
                     //'password' => Hash::make($request->password),
                 ]);
                 return response()->json('updated succesfully emty');
-            } else {
+            } elseif($request->password == $request->password2) {
                 $admin->update([
                     'firstname' => $request->firstName,
                     'lastname' => $request->lastName,
@@ -256,6 +256,8 @@ class AdministratorController extends Controller
                     'password' => Hash::make($request->password),
                 ]);
                 return response()->json('updated succesfully');
+            }else {
+                return response()->json('password mismatch');
             }
         }else{
             return response()->json('Error : Password short than 8 caracters');
@@ -446,14 +448,14 @@ class AdministratorController extends Controller
     {
         $reserv =
             DB::table('reservations as r')
-            ->select("room_id", "roomname")
+            ->select("room_id", "roomname","type")
             ->addSelect(DB::raw("group_concat(case when roomtiming = 8 then (select concat(firstname,' ',lastname) from teachers where email=r.teacher_email) end) as h8"))
             ->addSelect(DB::raw("group_concat(case when roomtiming = 10 then (select concat(firstname,' ',lastname) from teachers where email=r.teacher_email) end) as h10"))
             ->addSelect(DB::raw("group_concat(case when roomtiming = 12 then (select concat(firstname,' ',lastname) from teachers where email=r.teacher_email) end) as h12"))
             ->addSelect(DB::raw("group_concat(case when roomtiming = 14 then (select concat(firstname,' ',lastname) from teachers where email=r.teacher_email) end) as h14"))
             ->Join('rooms', 'r.room_id', '=', 'rooms.id')
             ->where('reservationdate', $request->date)
-            ->groupBy("room_id", "roomname")
+            ->groupBy("room_id", "roomname", "type")
             ->get();
 
         return $reserv; //[$reservation,$roomType];

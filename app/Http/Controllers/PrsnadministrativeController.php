@@ -44,7 +44,7 @@ class PrsnadministrativeController extends Controller
             [
                 'firstName' => 'required',
                 'lastName' => 'required',
-                'password' => 'min:8'
+                //'password' => 'min:8'
             ]
         );
         if ($validator->fails()) {
@@ -67,7 +67,7 @@ class PrsnadministrativeController extends Controller
                     //'password' => Hash::make($request->password),
                 ]);
                 return response()->json('updated succesfully');
-            } else {
+            } elseif($request->password == $request->password2) {
                 $prsnadministrative->update([
                     'firstname' => $request->firstName,
                     'lastname' => $request->lastName,
@@ -80,6 +80,8 @@ class PrsnadministrativeController extends Controller
                     'password' => Hash::make($request->password),
                 ]);
                 return response()->json('updated succesfully');
+            }else {
+                return response()->json('password mismatch');
             }
         }else{
             return response()->json('Error : Password short than 8 caracters');

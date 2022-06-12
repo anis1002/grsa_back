@@ -59,7 +59,7 @@ class TeacherController extends Controller
     {
 
         $reservationtrash = DB::table('reservations')
-        ->select('reservations.id','reservations.reservationdate', 'reservations.teacher_email', 'timings.starttime', 'timings.endtime', 'rooms.roomname')
+        ->select('reservations.id','reservations.reservationdate', 'reservations.teacher_email', 'timings.starttime', 'timings.endtime','rooms.roomname', 'rooms.type')
         ->join('rooms', 'rooms.id', "=", "room_id")
         ->join("timings", 'reservations.roomtiming', '=', 'timings.roomtiming')
         ->where('reservationdate', $request->date)
@@ -182,7 +182,7 @@ class TeacherController extends Controller
                 'firstName' => 'required',
                 'lastName' => 'required',
                 'phoneNumber' => 'required|numeric',
-                'password' => 'min:8'
+                //'password' => 'min:8'
             ]
         );
         if ($validator->fails()) {
@@ -206,7 +206,7 @@ class TeacherController extends Controller
                     //'password' => Hash::make($request->password),
                 ]);
                 return response()->json('updated succesfully');
-            } else {
+            } elseif($request->password == $request->password2) {
                 $teacher->update([
                     'firstname' => $request->firstName,
                     'lastname' => $request->lastName,
@@ -220,6 +220,8 @@ class TeacherController extends Controller
                     'password' => Hash::make($request->password),
                 ]);
                 return response()->json('updated succesfully');
+            } else {
+                return response()->json('password mismatch');
             }
         } else {
             return response()->json('Error : Password short than 8 caracters');
