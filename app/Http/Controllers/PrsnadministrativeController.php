@@ -12,19 +12,6 @@ use Illuminate\Support\Facades\Validator;
 
 class PrsnadministrativeController extends Controller
 {
-    public function login(Request $request)
-    {
-        if(Auth::attempt(['email'=>$request->email,'password'=>$request->password, 'role'=>'AdministrativePerson']))
-        {
-            $user = auth()->user();
-            $token = $user->createToken('token');
-            return $token->plainTextToken;
-        }
-        return response()->json([
-            "succes"=>false,
-            "status"=>200
-        ]);
-    }
 
     //---------------------------------------------------------------------------------------------------------------
     //edit profile prsnadministrative

@@ -19,26 +19,6 @@ use Illuminate\Support\Facades\Validator;
 
 class TeacherController extends Controller
 {
-
-    public function login(Request $request)
-    {
-        if (Auth::attempt(['email' => $request->email, 'password' => $request->password, 'role' => 'Teacher'])) {
-            $user = auth()->user();
-            $token = $user->createToken('token');
-            return $token->plainTextToken;
-        }
-
-        return response()->json([
-            "succes" => false,
-            "status" => 200
-        ]);
-    }
-    //---------------------------------------------------------------------------------------------------------------
-    public function logout(Request $request)
-    {
-        $request->user()->currentAccessToken()->delete();
-        return response(['message' => 'You have been successfully logged out.'], 200);
-    }
     //---------------------------------------------------------------------------------------------------------------
     //this is about consultation
     //---------------------------------------------------------------------------------------------------------------

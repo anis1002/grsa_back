@@ -35,28 +35,8 @@ class AdministratorController extends Controller
         }
         return ["Login" => false, "PersonType" => ['role' => 'none']];
     }
-    // public function userLoginNew(Request $req){
-
-    //     $user= User::where('email',$req->email)->first();
-
-    //     // if(!$user || !($req->password == $user->password))
-    //     if(!$user || !Hash::check($req->password, $user->password))
-    //     {
-    //     return
-    //     ["Login"=>false]
-    //     ;
-    //     }else{
-
-    //         return ["Login"=>true,"PersonType"=>$user];
-    //     }
-
-    // }
     //---------------------------------------------------------------------------------------------------------------
-    public function logout(Request $request)
-    {
-        $request->user()->currentAccessToken()->delete();
-        return response(['message' => 'You have been successfully logged out.'], 200);
-    }
+    
     //---------------------------------------------------------------------------------------------------------------
     //generate teachers information
     //---------------------------------------------------------------------------------------------------------------
